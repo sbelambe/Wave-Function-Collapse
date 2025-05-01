@@ -23,3 +23,5 @@ class Load extends Phaser.Scene {
         this.scene.start("sceneKey"); // start next scene
     }
 }
+
+export default Load;

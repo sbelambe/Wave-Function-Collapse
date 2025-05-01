@@ -1,4 +1,6 @@
 "use strict" // debug with extreme prejudice
+import Load from "./Scenes/load.js";
+import sceneName from "./Scenes/Scene.js";
 
 // game config
 let config = {
@@ -7,8 +9,8 @@ let config = {
     render: {
         pixelArt: true  // prevent pixel art from getting blurred when scaled
     },
-    width: 1280,
-    height: 800,
+    width: 2400,
+    height: 1600,
     scene: [Load, sceneName]
 }
 
