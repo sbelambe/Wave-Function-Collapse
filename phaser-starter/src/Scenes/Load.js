@@ -14,7 +14,7 @@ class Load extends Phaser.Scene {
         this.load.tilemapTiledJSON("map", "terrain map.json");          // Tiled JSON       --> (YOUR_KEY_B, FILE_NAME) 
         // NOTE: the keys you define above will be how you access this preloaded content in your scene(s)
 
-        ///Anish - testing
+        ///Anish - testingOLD
 
         // loading individual tile images
   
