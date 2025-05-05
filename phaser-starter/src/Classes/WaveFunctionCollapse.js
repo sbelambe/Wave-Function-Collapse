@@ -42,6 +42,22 @@ export default class WaveFunctionCollapse {
    */
   findLowestEntropyCell() {
     // TODO: Implement logic to find the cell with the fewest options
+    let minOptions = Infinity;
+    let lowestCell = null;
+
+    //nesting through the grid, checking for tile with lowest options
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        const options = this.grid[y][x];
+
+        //skipping cells that are already collapsed
+        if (options.size > 1 && options.size < minOptions) {
+          minOptions = options.size;
+          lowestCell = { x, y };
+        }
+      }
+    }
+    return lowestCell; //returns null if every cell is collapsed
   }
 
   /**
@@ -50,6 +66,7 @@ export default class WaveFunctionCollapse {
    */
   collapseCell(x, y) {
     // TODO: Randomly pick one option and set it as the only value for the cell
+    
   }
 
   /**
