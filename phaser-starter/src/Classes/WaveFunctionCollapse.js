@@ -66,7 +66,7 @@ export default class WaveFunctionCollapse {
    */
   collapseCell(x, y) {
     // TODO: Randomly pick one option and set it as the only value for the cell
-    const options = [...this.grid[y][x]]; //now an array of the tile's options
+    const options = Array.from(this.grid[y][x]); //now an array of the tile's options
     const selectedTile = options[Math.floor(Math.random() * options.length)];
     this.grid[y][x] = new Set([selectedTile]); //now only 1 option and back to set
     
@@ -84,7 +84,7 @@ export default class WaveFunctionCollapse {
 
     while (queue.length > 0){
       const{ x, y } = queue.shift();  //next cell tp process
-      const presentTile = {[...this.grid[y][x]][0]}; //collapsed tile
+      const presentTile = { tile: Array.from(this.grid[y][x])[0] }; //collapsed tile
 
       // 4 directions:
       for (const dir of ['up', 'down', 'left', 'right']) {
@@ -96,8 +96,7 @@ export default class WaveFunctionCollapse {
         const validNeighbors = this.rules[presentTile][dir]; // Allowed tiles given rules/constraints
   
         // Remove invalid options from neighbors
-        for (const option of [...neighborOptions]) {
-          if (!validNeighbors.includes(option)) {
+        for (const option of Array.from(neighborOptions)) {          if (!validNeighbors.includes(option)) {
             neighborOptions.delete(option);
             queue.push({ x: nx, y: ny }); // Re-check this neighbor in case the validity changes
           }
@@ -146,9 +145,17 @@ export default class WaveFunctionCollapse {
   collapse() {
     let steps = 0;
 
+    const maxSteps = this.width * this.height * 3; //3 is a reasonable max
+
     while (true) {
       const cell = this.findLowestEntropyCell();
       if (!cell) break; // All cells are collapsed
+
+      // Check for contradictions before collapsing (in case but unlikely)
+    if (this.grid[cell.y][cell.x].size === 0) {
+      console.error("Contradiction detected - empty cell at", cell.x, cell.y);
+      break;
+    }
 
       this.collapseCell(cell.x, cell.y);
       this.propagate(cell.x, cell.y);
@@ -160,8 +167,8 @@ export default class WaveFunctionCollapse {
     }
 
     // Convert each Set in the grid to a single tile ID for rendering
-    return this.grid.map((row) =>
-      row.map((cell) => (cell.size === 1 ? [...cell][0] : 0))
-    );
+    return this.grid.map(row => 
+      row.map(cell => (cell.size === 1 ? Array.from(cell)[0] : -1))
+    );    
   }
 }
