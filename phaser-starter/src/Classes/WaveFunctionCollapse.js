@@ -69,7 +69,6 @@ export default class WaveFunctionCollapse {
     const options = Array.from(this.grid[y][x]); //now an array of the tile's options
     const selectedTile = options[Math.floor(Math.random() * options.length)];
     this.grid[y][x] = new Set([selectedTile]); //now only 1 option and back to set
-    
   }
 
   /**
@@ -82,21 +81,27 @@ export default class WaveFunctionCollapse {
 
     const queue = [{ x, y }]; //collapsing the cell
 
-    while (queue.length > 0){
-      const{ x, y } = queue.shift();  //next cell tp process
-      const presentTile = { tile: Array.from(this.grid[y][x])[0] }; //collapsed tile
+    while (queue.length > 0) {
+      const { x, y } = queue.shift(); //next cell tp process
+      const presentTile = Array.from(this.grid[y][x])[0];
+      if (!this.rules[presentTile]) {
+        console.warn("No rules for tile", presentTile);
+        continue;
+      }
 
       // 4 directions:
-      for (const dir of ['up', 'down', 'left', 'right']) {
+      for (const dir of ["up", "down", "left", "right"]) {
         const [nx, ny] = this.getNeighbor(x, y, dir); //coordinations of the neighbor
-        if (nx === null || ny === null){ //out of bounds
+        if (nx === null || ny === null) {
+          //out of bounds
           continue; // Skip out-of-bounds
         }
         const neighborOptions = this.grid[ny][nx]; //location options of the neighbor
         const validNeighbors = this.rules[presentTile][dir]; // Allowed tiles given rules/constraints
-  
+
         // Remove invalid options from neighbors
-        for (const option of Array.from(neighborOptions)) {          if (!validNeighbors.includes(option)) {
+        for (const option of Array.from(neighborOptions)) {
+          if (!validNeighbors.includes(option)) {
             neighborOptions.delete(option);
             queue.push({ x: nx, y: ny }); // Re-check this neighbor in case the validity changes
           }
@@ -112,16 +117,16 @@ export default class WaveFunctionCollapse {
   getNeighbor(x, y, dir) {
     // TODO: Return [nx, ny] for the neighbor in direction `dir`
     const directions = {
-      up:    [x, y - 1],  //same column, previous row
-      down:  [x, y + 1],  //same column, next row
-      left:  [x - 1, y],  //previous column, same row
-      right: [x + 1, y]   //next column, same row
+      up: [x, y - 1], //same column, previous row
+      down: [x, y + 1], //same column, next row
+      left: [x - 1, y], //previous column, same row
+      right: [x + 1, y], //next column, same row
     };
-    const [nx, ny] = directions[dir];  // Get neighbor coordinates
-  
+    const [nx, ny] = directions[dir]; // Get neighbor coordinates
+
     // Return neighbor OR null if out of bounds
-    return (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height) 
-      ? [nx, ny] 
+    return nx >= 0 && nx < this.width && ny >= 0 && ny < this.height
+      ? [nx, ny]
       : [null, null];
   }
 
@@ -152,10 +157,10 @@ export default class WaveFunctionCollapse {
       if (!cell) break; // All cells are collapsed
 
       // Check for contradictions before collapsing (in case but unlikely)
-    if (this.grid[cell.y][cell.x].size === 0) {
-      console.error("Contradiction detected - empty cell at", cell.x, cell.y);
-      break;
-    }
+      if (this.grid[cell.y][cell.x].size === 0) {
+        console.error("Contradiction detected - empty cell at", cell.x, cell.y);
+        break;
+      }
 
       this.collapseCell(cell.x, cell.y);
       this.propagate(cell.x, cell.y);
@@ -167,8 +172,8 @@ export default class WaveFunctionCollapse {
     }
 
     // Convert each Set in the grid to a single tile ID for rendering
-    return this.grid.map(row => 
-      row.map(cell => (cell.size === 1 ? Array.from(cell)[0] : -1))
-    );    
+    return this.grid.map((row) =>
+      row.map((cell) => (cell.size === 1 ? Array.from(cell)[0] : -1))
+    );
   }
 }
