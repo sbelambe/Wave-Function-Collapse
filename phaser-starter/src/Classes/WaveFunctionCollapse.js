@@ -66,7 +66,7 @@ export default class WaveFunctionCollapse {
    */
   collapseCell(x, y) {
     // TODO: Randomly pick one option and set it as the only value for the cell
-    const options = [this.grid[y][x]]; //now an array of the tile's options
+    const options = [...this.grid[y][x]]; //now an array of the tile's options
     const selectedTile = options[Math.floor(Math.random() * options.length)];
     this.grid[y][x] = new Set([selectedTile]); //now only 1 option and back to set
     
@@ -84,7 +84,7 @@ export default class WaveFunctionCollapse {
 
     while (queue.length > 0){
       const{ x, y } = queue.shift();  //next cell tp process
-      const presentTile = {[this.grid[y][x]][0]}; //collapsed tile
+      const presentTile = {[...this.grid[y][x]][0]}; //collapsed tile
 
       // 4 directions:
       for (const dir of ['up', 'down', 'left', 'right']) {
@@ -96,7 +96,7 @@ export default class WaveFunctionCollapse {
         const validNeighbors = this.rules[presentTile][dir]; // Allowed tiles given rules/constraints
   
         // Remove invalid options from neighbors
-        for (const option of [neighborOptions]) {
+        for (const option of [...neighborOptions]) {
           if (!validNeighbors.includes(option)) {
             neighborOptions.delete(option);
             queue.push({ x: nx, y: ny }); // Re-check this neighbor in case the validity changes
@@ -112,6 +112,18 @@ export default class WaveFunctionCollapse {
    */
   getNeighbor(x, y, dir) {
     // TODO: Return [nx, ny] for the neighbor in direction `dir`
+    const directions = {
+      up:    [x, y - 1],  //same column, previous row
+      down:  [x, y + 1],  //same column, next row
+      left:  [x - 1, y],  //previous column, same row
+      right: [x + 1, y]   //next column, same row
+    };
+    const [nx, ny] = directions[dir];  // Get neighbor coordinates
+  
+    // Return neighbor OR null if out of bounds
+    return (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height) 
+      ? [nx, ny] 
+      : [null, null];
   }
 
   /**
