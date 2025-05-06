@@ -79,6 +79,31 @@ export default class WaveFunctionCollapse {
    */
   propagate(x, y) {
     // TODO: Implement constraint propagation (e.g., using a queue)
+
+    const queue = [{ x, y }]; //collapsing the cell
+
+    while (queue.length > 0){
+      const{ x, y } = queue.shift();  //next cell tp process
+      const presentTile = {[this.grid[y][x]][0]}; //collapsed tile
+
+      // 4 directions:
+      for (const dir of ['up', 'down', 'left', 'right']) {
+        const [nx, ny] = this.getNeighbor(x, y, dir); //coordinations of the neighbor
+        if (nx === null || ny === null){ //out of bounds
+          continue; // Skip out-of-bounds
+        }
+        const neighborOptions = this.grid[ny][nx]; //location options of the neighbor
+        const validNeighbors = this.rules[presentTile][dir]; // Allowed tiles given rules/constraints
+  
+        // Remove invalid options from neighbors
+        for (const option of [neighborOptions]) {
+          if (!validNeighbors.includes(option)) {
+            neighborOptions.delete(option);
+            queue.push({ x: nx, y: ny }); // Re-check this neighbor in case the validity changes
+          }
+        }
+      }
+    }
   }
 
   /**
