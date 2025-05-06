@@ -66,6 +66,9 @@ export default class WaveFunctionCollapse {
    */
   collapseCell(x, y) {
     // TODO: Randomly pick one option and set it as the only value for the cell
+    const options = [this.grid[y][x]]; //now an array of the tile's options
+    const selectedTile = options[Math.floor(Math.random() * options.length)];
+    this.grid[y][x] = new Set([selectedTile]); //now only 1 option and back to set
     
   }
 
