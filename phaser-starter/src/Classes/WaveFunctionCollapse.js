@@ -19,6 +19,7 @@ export default class WaveFunctionCollapse {
     this.grid = Array.from({ length: height }, () =>
       Array.from({ length: width }, () => new Set(this.tileOptions))
     );
+    console.log("Allowed tile options:", this.tileOptions);
   }
 
   /**
@@ -28,11 +29,67 @@ export default class WaveFunctionCollapse {
    *
    *
    */
+  // defaultRules() {
+  //   return {
+
+  //     // dirt
+  //     // 0 1 2
+  //     // 17 18 19
+  //     // 34 35 36
+  //     0: {
+  //       up: [0, 5],
+  //       down: [0, 5],
+  //       left: [0, 5],
+  //       right: [0, 5],
+  //     },
+  //     // grass
+  //     //5 6 7
+  //     // 22 23 24
+  //     // 39 40 41
+  //     5: {
+  //       up: [0, 5, 202],
+  //       down: [0, 5, 202],
+  //       left: [0, 5, 202],
+  //       right: [0, 5, 202],
+  //     },
+  //     202: {
+  //       // water
+  //       // 186 202 203
+  //       up: [202, 5],
+  //       down: [202, 5],
+  //       left: [202, 5],
+  //       right: [202, 5],
+  //     },
+  //   };
+  // }
   defaultRules() {
     return {
-      0: { up: [0, 1], down: [0, 2], left: [0, 1], right: [0, 1] }, // grass
-      1: { up: [0, 1], down: [1], left: [0, 1], right: [0, 2] }, // water
-      2: { up: [2], down: [2], left: [2, 0], right: [0, 2] }, // dirt
+      // Dirt tiles (surrounded by grass or more dirt)
+      0: { up: [39, 40, 41, 202, 186, 203], down: [17, 18, 19, 34, 35, 36], left: [7, 23, 24, 40, 41], right: [1, 2, 18, 19, 35, 36]},
+      1: { up: [39, 40, 41, 202, 186, 203], down: [17, 18, 19, 34, 35, 36], left: [7, 23, 24, 40, 41], right: [1, 2, 18, 19, 35, 36]},
+      2: { up: [0, 5], down: [0, 5], left: [0, 5], right: [0, 5] },
+      17: { up: [0, 5], down: [0, 5], left: [0, 5], right: [18] },
+      18: { up: [1], down: [35], left: [17], right: [19] },
+      19: { up: [2], down: [36], left: [18], right: [0, 5] },
+      34: { up: [17], down: [0, 5], left: [0, 5], right: [35] },
+      35: { up: [18], down: [0, 5], left: [34], right: [36] },
+      36: { up: [19], down: [0, 5], left: [35], right: [0, 5] },
+
+      // Grass tiles
+      5: { up: [0, 5, 202], down: [22], left: [0, 5, 202], right: [6] },
+      6: { up: [0, 5, 202], down: [23], left: [5], right: [7] },
+      7: { up: [0, 5, 202], down: [24], left: [6], right: [0, 5, 202] },
+      22: { up: [5], down: [39], left: [0, 5, 202], right: [23] },
+      23: { up: [6], down: [40], left: [22], right: [24] },
+      24: { up: [7], down: [41], left: [23], right: [0, 5, 202] },
+      39: { up: [22], down: [0, 5, 202], left: [0, 5, 202], right: [40] },
+      40: { up: [23], down: [0, 5, 202], left: [39], right: [41] },
+      41: { up: [24], down: [0, 5, 202], left: [40], right: [0, 5, 202] },
+
+      // Water tiles
+      202: { up: [202, 5], down: [202, 5], left: [202, 5], right: [202, 5] },
+      186: { up: [202, 5], down: [202, 5], left: [202, 5], right: [202, 5] },
+      203: { up: [202, 5], down: [202, 5], left: [202, 5], right: [202, 5] },
     };
   }
 
@@ -67,7 +124,15 @@ export default class WaveFunctionCollapse {
   collapseCell(x, y) {
     // TODO: Randomly pick one option and set it as the only value for the cell
     const options = Array.from(this.grid[y][x]); //now an array of the tile's options
-    const selectedTile = options[Math.floor(Math.random() * options.length)];
+    const validOptions = options.filter((opt) =>
+      this.tileOptions.includes(opt)
+    );
+    if (validOptions.length === 0) {
+      console.warn(`No valid options at (${x}, ${y})`);
+      return;
+    }
+    const selectedTile =
+      validOptions[Math.floor(Math.random() * validOptions.length)];
     this.grid[y][x] = new Set([selectedTile]); //now only 1 option and back to set
   }
 
@@ -97,7 +162,8 @@ export default class WaveFunctionCollapse {
           continue; // Skip out-of-bounds
         }
         const neighborOptions = this.grid[ny][nx]; //location options of the neighbor
-        const validNeighbors = this.rules[presentTile][dir]; // Allowed tiles given rules/constraints
+        const validNeighbors = this.rules[presentTile]?.[dir];
+        if (!validNeighbors) continue;
 
         // Remove invalid options from neighbors
         for (const option of Array.from(neighborOptions)) {
@@ -150,15 +216,19 @@ export default class WaveFunctionCollapse {
   collapse() {
     let steps = 0;
 
-    const maxSteps = this.width * this.height * 3; //3 is a reasonable max
+    // ✅ Step 1: Pick a starting cell manually and collapse it
+    const startX = Math.floor(this.width / 2); // or 0
+    const startY = Math.floor(this.height / 2); // or 0
+    this.collapseCell(startX, startY);
+    this.propagate(startX, startY);
 
+    // ✅ Step 2: Continue WFC as usual
     while (true) {
       const cell = this.findLowestEntropyCell();
-      if (!cell) break; // All cells are collapsed
+      if (!cell) break;
 
-      // Check for contradictions before collapsing (in case but unlikely)
       if (this.grid[cell.y][cell.x].size === 0) {
-        console.error("Contradiction detected - empty cell at", cell.x, cell.y);
+        console.error("Contradiction detected at", cell.x, cell.y);
         break;
       }
 
@@ -166,12 +236,11 @@ export default class WaveFunctionCollapse {
       this.propagate(cell.x, cell.y);
 
       if (++steps > this.width * this.height * 5) {
-        console.warn("Too many steps — likely contradiction in constraints.");
+        console.warn("Too many steps — likely contradiction");
         break;
       }
     }
 
-    // Convert each Set in the grid to a single tile ID for rendering
     return this.grid.map((row) =>
       row.map((cell) => (cell.size === 1 ? Array.from(cell)[0] : -1))
     );
