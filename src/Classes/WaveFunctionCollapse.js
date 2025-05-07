@@ -97,39 +97,45 @@ export default class WaveFunctionCollapse {
     return {
       // Center Dirt (18) can be next to edge/center dirt and adjacent grass
       18: {
-        up: [23, 18, 202],
-        down: [23, 18, 202],
-        left: [23, 18, 202],
-        right: [23, 18, 202],
+        up: [202, 186, 18, 23, 86],
+        down: [202, 186, 18, 23, 86],
+        left: [202, 186, 18, 23, 86],
+        right: [202, 186, 18, 23, 86],
       },
 
       // Center Grass (23) can be next to edge/center grass and adjacent dirt
       23: {
-        up: [23, 18, 202],
-        down: [23, 18, 202],
-        left: [23, 18, 202],
-        right: [23, 18, 202],
+        up: [202, 186, 18, 23, 86],
+        down: [202, 186, 18, 23, 86],
+        left: [202, 186, 18, 23, 86],
+        right: [202, 186, 18, 23, 86],
       },
 
       // Water blocks can still touch each other or transition grass
       202: {
-        up: [202, 186, , 18, 23],
-        down: [202, 186, , 18, 23],
-        left: [202, 186, , 18, 23],
-        right: [202, 186, , 18, 23],
+        up: [202, 186, 18, 23, 86],
+        down: [202, 186, 18, 23, 86],
+        left: [202, 186, 18, 23, 86],
+        right: [202, 186, 18, 23, 86],
       },
       186: {
-        up: [202, 186, , 18, 23],
-        down: [202, 186, , 18, 23],
-        left: [202, 186, , 18, 23],
-        right: [202, 186, , 18, 23],
+        up: [202, 186, 18, 23, 86],
+        down: [202, 186, 18, 23, 86],
+        left: [202, 186, 18, 23, 86],
+        right: [202, 186, 18, 23, 86],
       },
       203: {
-        up: [202, 186, , 18, 23],
-        down: [202, 186, , 18, 23],
-        left: [202, 186, , 18, 23],
-        right: [202, 186, , 18, 23],
+        up: [202, 186, 18, 23, 86],
+        down: [202, 186, 18, 23, 86],
+        left: [202, 186, 18, 23, 86],
+        right: [202, 186, 18, 23, 86],
       },
+      86: {
+        up: [202, 186, 18, 23, 86],
+        down: [202, 186, 18, 23, 86],
+        left: [202, 186, 18, 23, 86],
+        right: [202, 186, 18, 23, 86],
+      }
     };
   }
 
@@ -252,6 +258,15 @@ export default class WaveFunctionCollapse {
   //     row.map((cell) => (cell.size === 1 ? [...cell][0] : 0))
   //   );
   // }
+
+  collapseDecor(baseGrid) {
+    return baseGrid.map((row) =>
+      row.map((tile) => {
+        if (tile === 18 && Math.random() < 0.1) return 38; // cactus on sand
+        return -1;
+      })
+    );
+  }
 
   collapse() {
     let steps = 0;

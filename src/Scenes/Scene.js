@@ -17,7 +17,7 @@ class sceneName extends Phaser.Scene {
 
   create() {
     this.cursors = this.input.keyboard.createCursorKeys();
-    this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY) => {
+    this.input.on("wheel", (pointer, gameObjects, deltaX, deltaY) => {
       this.cameras.main.scrollY += deltaY * 0.5;
     });
     console.log("Scene loaded");
@@ -28,12 +28,10 @@ class sceneName extends Phaser.Scene {
     };
 
     const renderMap = () => {
-      // Clear previous WFC layer if it exists
-      if (this.dynamicLayer) {
-        this.dynamicLayer.destroy();
-      }
+      if (this.dynamicLayer) this.dynamicLayer.destroy();
+      if (this.decorLayer) this.decorLayer.destroy(); // also remove old decorations
 
-      const wfc = new WaveFunctionCollapse(20, 15, null); // Replace null with rules if needed
+      const wfc = new WaveFunctionCollapse(20, 15, null);
       const tileGrid = wfc.collapse();
 
       const map = this.make.tilemap({
@@ -42,14 +40,29 @@ class sceneName extends Phaser.Scene {
       });
 
       const tileset = map.addTilesetImage(this.tileset.name, this.tileset.key);
-      this.dynamicLayer = map.createLayer(0, tileset, 100, 100); // Store ref to allow future cleanup
+      this.dynamicLayer = map.createLayer(0, tileset, 100, 100);
+
+      // ✅ Add a decoration layer (for cactus, etc.)
+      this.decorLayer = map.createBlankLayer("decorLayer", tileset, 100, 100);
+
+      for (let y = 0; y < tileGrid.length; y++) {
+        for (let x = 0; x < tileGrid[0].length; x++) {
+          const baseTile = tileGrid[y][x];
+
+          // Place cactus on sand (18) with 10% chance
+          if (baseTile === 18 && Math.random() < 0.1) {
+            this.decorLayer.putTileAt(38, x, y); // cactus tile
+          }
+
+          // You could add flowers on grass (23) here too
+        }
+      }
     };
 
     // Initial render
     renderMap();
 
     Testing.renderDebugTiles(this, this.tileset, 100, 1100); // Adjust Y to fit below WFC grid
-
 
     // Place a debug tile in top-left to see which index maps to which image
     const debugTileIndex = 202; // Change this to test different tiles
@@ -75,6 +88,7 @@ class sceneName extends Phaser.Scene {
       if (this.mapLayer) {
         this.mapLayer.destroy();
         this.tilemap.destroy();
+        this.decorLayer.destroy();
       }
 
       const wfc = new WaveFunctionCollapse(20, 15, null);
@@ -90,7 +104,25 @@ class sceneName extends Phaser.Scene {
         this.tileset.name,
         this.tileset.key
       );
+
       this.mapLayer = this.tilemap.createLayer(0, tileset, 100, 100);
+
+      this.decorLayer = this.tilemap.createBlankLayer(
+        "decorLayer",
+        tileset,
+        100,
+        100
+      );
+
+      for (let y = 0; y < tileGrid.length; y++) {
+        for (let x = 0; x < tileGrid[0].length; x++) {
+          const tile = tileGrid[y][x];
+
+          if (tile === 18 && Math.random() < 0.1) {
+            this.decorLayer.putTileAt(38, x, y); // cactus
+          }
+        }
+      }
     });
   }
 
@@ -100,7 +132,6 @@ class sceneName extends Phaser.Scene {
     } else if (this.cursors.down.isDown) {
       this.cameras.main.scrollY += 10;
     }
-    
   }
 }
 
