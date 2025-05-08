@@ -4,6 +4,8 @@ import Testing from "../Classes/Testing.js";
 class sceneName extends Phaser.Scene {
   constructor() {
     super("sceneKey");
+    this.steps = 0;
+    this.maxSteps = this.tileWidth * this.tileHeight * 5;
   }
 
   init() {
@@ -31,6 +33,7 @@ class sceneName extends Phaser.Scene {
       if (this.dynamicLayer) this.dynamicLayer.destroy();
       if (this.decorLayer) this.decorLayer.destroy(); // also remove old decorations
 
+      this.steps = 0;
       const wfc = new WaveFunctionCollapse(20, 15, null);
       const tileGrid = wfc.collapse();
 
@@ -85,17 +88,15 @@ class sceneName extends Phaser.Scene {
 
     // Press R to regenerate the WFC map
     this.input.keyboard.on("keydown-R", () => {
-      if (this.mapLayer) {
-        this.mapLayer.destroy();
-        this.tilemap.destroy();
-        this.decorLayer.destroy();
-      }
+      if (this.mapLayer) this.mapLayer.destroy();
+      if (this.tilemap) this.tilemap.destroy();
+      if (this.decorLayer) this.decorLayer.destroy();
 
-      const wfc = new WaveFunctionCollapse(20, 15, null);
-      const tileGrid = wfc.collapse();
+      this.wfc = new WaveFunctionCollapse(20, 15, null);
 
       this.tilemap = this.make.tilemap({
-        data: tileGrid,
+        width: 20,
+        height: 15,
         tileWidth: this.tileset.tileWidth,
         tileHeight: this.tileset.tileHeight,
       });
@@ -105,8 +106,12 @@ class sceneName extends Phaser.Scene {
         this.tileset.key
       );
 
-      this.mapLayer = this.tilemap.createLayer(0, tileset, 100, 100);
-
+      this.mapLayer = this.tilemap.createBlankLayer(
+        "mainLayer",
+        tileset,
+        100,
+        100
+      );
       this.decorLayer = this.tilemap.createBlankLayer(
         "decorLayer",
         tileset,
@@ -114,15 +119,24 @@ class sceneName extends Phaser.Scene {
         100
       );
 
-      for (let y = 0; y < tileGrid.length; y++) {
-        for (let x = 0; x < tileGrid[0].length; x++) {
-          const tile = tileGrid[y][x];
+      // Begin animating WFC step-by-step
+      this.timer = this.time.addEvent({
+        delay: 10,
+        loop: true,
+        callback: () => {
+          const result = this.wfc.stepCollapse();
+          if (result) {
+            this.mapLayer.putTileAt(result.tile, result.x, result.y);
 
-          if (tile === 18 && Math.random() < 0.1) {
-            this.decorLayer.putTileAt(38, x, y); // cactus
+            // OPTIONAL: decorate as we go
+            if (result.tile === 18 && Math.random() < 0.1) {
+              this.decorLayer.putTileAt(38, result.x, result.y); // cactus
+            }
+          } else {
+            this.timer.remove();
           }
-        }
-      }
+        },
+      });
     });
   }
 
@@ -136,3 +150,4 @@ class sceneName extends Phaser.Scene {
 }
 
 export default sceneName;
+
