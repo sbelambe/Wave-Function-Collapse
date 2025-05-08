@@ -1,5 +1,5 @@
 "use strict" // debug with extreme prejudice
-import Load from "./Scenes/load.js";
+import Load from "./Scenes/Load.js";
 import sceneName from "./Scenes/Scene.js";
 
 // game config
