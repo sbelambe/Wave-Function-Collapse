@@ -29,41 +29,40 @@ class sceneName extends Phaser.Scene {
       tileHeight: this.tileset.tileHeight,
     };
 
-    const renderMap = () => {
-      if (this.dynamicLayer) this.dynamicLayer.destroy();
-      if (this.decorLayer) this.decorLayer.destroy(); // also remove old decorations
+    // const renderMap = () => {
+    //   if (this.dynamicLayer) this.dynamicLayer.destroy();
+    //   if (this.decorLayer) this.decorLayer.destroy(); // also remove old decorations
 
-      this.steps = 0;
-      const wfc = new WaveFunctionCollapse(20, 15, null);
-      const tileGrid = wfc.collapse();
+    //   this.steps = 0;
+    //   const wfc = new WaveFunctionCollapse(20, 15, null);
+    //   const tileGrid = wfc.collapse();
 
-      const map = this.make.tilemap({
-        data: tileGrid,
-        ...tilesetConfig,
-      });
+    //   const map = this.make.tilemap({
+    //     data: tileGrid,
+    //     ...tilesetConfig,
+    //   });
 
-      const tileset = map.addTilesetImage(this.tileset.name, this.tileset.key);
-      this.dynamicLayer = map.createLayer(0, tileset, 100, 100);
+    //   const tileset = map.addTilesetImage(this.tileset.name, this.tileset.key);
+    //   this.dynamicLayer = map.createLayer(0, tileset, 100, 100);
 
-      // ✅ Add a decoration layer (for cactus, etc.)
-      this.decorLayer = map.createBlankLayer("decorLayer", tileset, 100, 100);
+    //   this.decorLayer = map.createBlankLayer("decorLayer", tileset, 100, 100);
 
-      for (let y = 0; y < tileGrid.length; y++) {
-        for (let x = 0; x < tileGrid[0].length; x++) {
-          const baseTile = tileGrid[y][x];
+    //   for (let y = 0; y < tileGrid.length; y++) {
+    //     for (let x = 0; x < tileGrid[0].length; x++) {
+    //       const baseTile = tileGrid[y][x];
 
-          // Place cactus on sand (18) with 10% chance
-          if (baseTile === 18 && Math.random() < 0.1) {
-            this.decorLayer.putTileAt(38, x, y); // cactus tile
-          }
+    //       // Place cactus on sand (18) with 10% chance
+    //       if (baseTile === 18 && Math.random() < 0.1) {
+    //         this.decorLayer.putTileAt(38, x, y); // cactus tile
+    //       }
 
-          // You could add flowers on grass (23) here too
-        }
-      }
-    };
+    //       // You could add flowers on grass (23) here too
+    //     }
+    //   }
+    // };
 
     // Initial render
-    renderMap();
+    // renderMap();
 
     Testing.renderDebugTiles(this, this.tileset, 100, 1100); // Adjust Y to fit below WFC grid
 
@@ -89,16 +88,16 @@ class sceneName extends Phaser.Scene {
     // Press R to regenerate the WFC map
     this.input.keyboard.on("keydown-R", () => {
       if (this.mapLayer) this.mapLayer.destroy();
-      if (this.tilemap) this.tilemap.destroy();
       if (this.decorLayer) this.decorLayer.destroy();
+      if (this.tilemap) this.tilemap.destroy();
 
       this.wfc = new WaveFunctionCollapse(20, 15, null);
 
       this.tilemap = this.make.tilemap({
-        width: 20,
-        height: 15,
         tileWidth: this.tileset.tileWidth,
         tileHeight: this.tileset.tileHeight,
+        width: 20,
+        height: 15,
       });
 
       const tileset = this.tilemap.addTilesetImage(
@@ -119,18 +118,16 @@ class sceneName extends Phaser.Scene {
         100
       );
 
-      // Begin animating WFC step-by-step
       this.timer = this.time.addEvent({
-        delay: 10,
+        delay: 5,
         loop: true,
         callback: () => {
           const result = this.wfc.stepCollapse();
           if (result) {
             this.mapLayer.putTileAt(result.tile, result.x, result.y);
 
-            // OPTIONAL: decorate as we go
             if (result.tile === 18 && Math.random() < 0.1) {
-              this.decorLayer.putTileAt(38, result.x, result.y); // cactus
+              this.decorLayer.putTileAt(38, result.x, result.y);
             }
           } else {
             this.timer.remove();
@@ -150,4 +147,3 @@ class sceneName extends Phaser.Scene {
 }
 
 export default sceneName;
-

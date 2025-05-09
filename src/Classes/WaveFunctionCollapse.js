@@ -35,19 +35,25 @@ export default class WaveFunctionCollapse {
   defaultRules() {
     return {
       // Center Dirt (18) can be next to edge/center dirt and adjacent grass
+      // 0: {
+      //   up: [],
+      //   down: [202, 186, 18, 23, 86],
+      //   left: [202, 186, 18, 23, 86],
+      //   right: [202, 186, 18, 23, 86],
+      // },
       18: {
-        up: [202, 186, 18, 23, 86],
-        down: [202, 186, 18, 23, 86],
-        left: [202, 186, 18, 23, 86],
-        right: [202, 186, 18, 23, 86],
+        up: [18, 202, 23],
+        down: [18, 202, 23],
+        left: [18, 202, 23],
+        right: [18, 202, 23],
       },
 
       // Center Grass (23) can be next to edge/center grass and adjacent dirt
       23: {
-        up: [202, 186, 18, 23, 86],
-        down: [202, 186, 18, 23, 86],
-        left: [202, 186, 18, 23, 86],
-        right: [202, 186, 18, 23, 86],
+        up: [202, 186, 23, 86, 18],
+        down: [202, 186, 23, 86, 18],
+        left: [202, 186, 23, 86],
+        right: [202, 186, 23, 86],
       },
 
       // Water blocks can still touch each other or transition grass
@@ -58,16 +64,16 @@ export default class WaveFunctionCollapse {
         right: [202, 186, 18, 23, 86],
       },
       186: {
-        up: [202, 186, 18, 23, 86],
-        down: [202, 186, 18, 23, 86],
-        left: [202, 186, 18, 23, 86],
-        right: [202, 186, 18, 23, 86],
+        up: [202, 186, 23, 86],
+        down: [202, 186, 23, 86],
+        left: [202, 186, 23, 86],
+        right: [202, 186, 23, 86],
       },
       203: {
-        up: [202, 186, 18, 23, 86],
-        down: [202, 186, 18, 23, 86],
-        left: [202, 186, 18, 23, 86],
-        right: [202, 186, 18, 23, 86],
+        up: [202, 186, 23, 86],
+        down: [202, 186, 23, 86],
+        left: [202, 186, 23, 86],
+        right: [202, 186, 23, 86],
       },
       86: {
         up: [202, 186, 18, 23, 86],
@@ -84,21 +90,29 @@ export default class WaveFunctionCollapse {
    */
   findLowestEntropyCell() {
     let minOptions = Infinity;
-    let lowestCell = null;
+    let candidates = [];
 
-    //nesting through the grid, checking for tile with lowest options
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
         const options = this.grid[y][x];
 
-        //skipping cells that are already collapsed
-        if (options.size > 1 && options.size < minOptions) {
+        if (options.size <= 1) continue;
+
+        if (options.size < minOptions) {
           minOptions = options.size;
-          lowestCell = { x, y };
+          candidates = [{ x, y }];
+        } else if (options.size === minOptions) {
+          candidates.push({ x, y });
         }
       }
     }
-    return lowestCell; //returns null if every cell is collapsed
+
+    // Randomly choose among equal-entropy candidates
+    if (candidates.length > 0) {
+      return candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
+    return null;
   }
 
   /**
@@ -177,8 +191,8 @@ export default class WaveFunctionCollapse {
     this.collapseCell(cell.x, cell.y);
     this.propagate(cell.x, cell.y);
     this.steps++;
+    const collapsedTile = [...this.grid[cell.y][cell.x]][0];
 
-    const collapsedTile = Array.from(this.grid[cell.y][cell.x])[0];
     return { x: cell.x, y: cell.y, tile: collapsedTile };
   }
 
@@ -217,4 +231,3 @@ export default class WaveFunctionCollapse {
     );
   }
 }
-
