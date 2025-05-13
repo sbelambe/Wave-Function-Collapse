@@ -126,8 +126,11 @@ class sceneName extends Phaser.Scene {
           if (result) {
             this.mapLayer.putTileAt(result.tile, result.x, result.y);
 
-            if (result.tile === 18 && Math.random() < 0.1) {
+            if (result.tile === 18 && Math.random() < 0.3) {
               this.decorLayer.putTileAt(38, result.x, result.y);
+            }
+            if (result.tile === 23 && Math.random() < 0.3) {
+              this.decorLayer.putTileAt(42, result.x, result.y);
             }
           } else {
             this.timer.remove();
