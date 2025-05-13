@@ -35,27 +35,21 @@ export default class WaveFunctionCollapse {
   defaultRules() {
     return {
       // Center Dirt (18) can be next to edge/center dirt and adjacent grass
-      // 0: {
-      //   up: [],
-      //   down: [202, 186, 18, 23, 86],
-      //   left: [202, 186, 18, 23, 86],
-      //   right: [202, 186, 18, 23, 86],
-      // },
       18: {
-        up: [18, 202, 23],
-        down: [18, 202, 23],
-        left: [18, 202, 23],
-        right: [18, 202, 23],
+        up: [202, 186, 18, 23, 86],
+        down: [202, 186, 18, 23, 86],
+        left: [202, 186, 18, 23, 86],
+        right: [202, 186, 18, 23, 86],
       },
-
+  
       // Center Grass (23) can be next to edge/center grass and adjacent dirt
       23: {
-        up: [202, 186, 23, 86, 18],
-        down: [202, 186, 23, 86, 18],
-        left: [202, 186, 23, 86],
-        right: [202, 186, 23, 86],
+        up: [202, 186, 18, 23, 86],
+        down: [202, 186, 18, 23, 86],
+        left: [202, 186, 18, 23, 86],
+        right: [202, 186, 18, 23, 86],
       },
-
+  
       // Water blocks can still touch each other or transition grass
       202: {
         up: [202, 186, 18, 23, 86],
@@ -64,16 +58,16 @@ export default class WaveFunctionCollapse {
         right: [202, 186, 18, 23, 86],
       },
       186: {
-        up: [202, 186, 23, 86],
-        down: [202, 186, 23, 86],
-        left: [202, 186, 23, 86],
-        right: [202, 186, 23, 86],
+        up: [202, 186, 18, 23, 86],
+        down: [202, 186, 18, 23, 86],
+        left: [202, 186, 18, 23, 86],
+        right: [202, 186, 18, 23, 86],
       },
       203: {
-        up: [202, 186, 23, 86],
-        down: [202, 186, 23, 86],
-        left: [202, 186, 23, 86],
-        right: [202, 186, 23, 86],
+        up: [202, 186, 18, 23, 86],
+        down: [202, 186, 18, 23, 86],
+        left: [202, 186, 18, 23, 86],
+        right: [202, 186, 18, 23, 86],
       },
       86: {
         up: [202, 186, 18, 23, 86],
@@ -83,6 +77,7 @@ export default class WaveFunctionCollapse {
       },
     };
   }
+  
 
   /**
    * Find the grid cell with the lowest entropy (fewest remaining tile options),
