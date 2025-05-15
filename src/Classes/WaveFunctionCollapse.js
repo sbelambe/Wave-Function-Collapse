@@ -41,39 +41,44 @@ export default class WaveFunctionCollapse {
    */
   defaultRules() {
     return {
-      // Center Dirt (18) can be next to edge/center dirt and adjacent grass
-      18: {
-        up: [202, 186, 18, 23, 86],
-        down: [202, 186, 18, 23, 86],
-        left: [202, 186, 18, 23, 86],
-        right: [202, 186, 18, 23, 86],
+      // Grass (23) touches itself, dirt, and ice
+      23: {
+        up: [23, 18, 86],
+        down: [23, 18, 86],
+        left: [23, 18, 86],
+        right: [23, 18, 86],
       },
 
-      // Center Grass (23) can be next to edge/center grass and adjacent dirt
-      23: {
-        up: [202, 186, 18, 23, 86],
-        down: [202, 186, 18, 23, 86],
-        left: [202, 186, 18, 23, 86],
-        right: [202, 186, 18, 23, 86],
+      // Dirt (18) touches itself, grass, and water
+      18: {
+        up: [18, 23, 202, 186, 86],
+        down: [18, 23, 202, 186, 86],
+        left: [18, 23, 202, 186, 86],
+        right: [18, 23, 202, 186, 86],
       },
-      // Water blocks can still touch each other or transition grass
-      202: {
-        up: [202, 186, 18, 23, 86],
-        down: [202, 186, 18, 23, 86],
-        left: [202, 186, 18, 23, 86],
-        right: [202, 186, 18, 23, 86],
-      },
-      186: {
-        up: [202, 186, 18, 23, 86],
-        down: [202, 186, 18, 23, 86],
-        left: [202, 186, 18, 23, 86],
-        right: [202, 186, 18, 23, 86],
-      },
+
+      // Ice (86) only touches grass
       86: {
-        up: [202, 186, 18, 23, 86],
-        down: [202, 186, 18, 23, 86],
-        left: [202, 186, 18, 23, 86],
-        right: [202, 186, 18, 23, 86],
+        up: [23, 18],
+        down: [23, 18],
+        left: [23, 18],
+        right: [23, 18],
+      },
+
+      // Water (202)
+      202: {
+        up: [202, 186, 18],
+        down: [202, 186, 18],
+        left: [202, 186, 18],
+        right: [202, 186, 18],
+      },
+
+      // Water alt (186)
+      186: {
+        up: [202, 186, 18],
+        down: [202, 186, 18],
+        left: [202, 186, 18],
+        right: [202, 186, 18],
       },
     };
   }
