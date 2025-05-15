@@ -49,7 +49,7 @@ export default class WaveFunctionCollapse {
         right: [23, 18, 86],
       },
 
-      // Dirt (18) touches itself, grass, and water
+      // Sand (18) touches itself, grass, and water
       18: {
         up: [18, 23, 202, 186, 86],
         down: [18, 23, 202, 186, 86],
@@ -59,10 +59,10 @@ export default class WaveFunctionCollapse {
 
       // Ice (86) only touches grass
       86: {
-        up: [23, 18],
-        down: [23, 18],
-        left: [23, 18],
-        right: [23, 18],
+        up: [23, 86],
+        down: [23, 86],
+        left: [23, 86],
+        right: [23, 86],
       },
 
       // Water (202)
