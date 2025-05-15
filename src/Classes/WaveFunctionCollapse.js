@@ -15,6 +15,13 @@ export default class WaveFunctionCollapse {
     // Get list of all tile IDs used in rules (e.g., [0, 1, 2])
     this.tileOptions = Object.keys(this.rules).map(Number);
 
+    console.log("Tile options:", this.tileOptions);
+    for (let tile of this.tileOptions) {
+      if (!this.rules[tile]) {
+        console.warn("No rule for tile:", tile);
+      }
+    }
+
     // Create grid: each cell starts with a Set of all possible tile options
     this.grid = Array.from({ length: height }, () =>
       Array.from({ length: width }, () => new Set(this.tileOptions))
@@ -41,7 +48,7 @@ export default class WaveFunctionCollapse {
         left: [202, 186, 18, 23, 86],
         right: [202, 186, 18, 23, 86],
       },
-  
+
       // Center Grass (23) can be next to edge/center grass and adjacent dirt
       23: {
         up: [202, 186, 18, 23, 86],
@@ -49,7 +56,6 @@ export default class WaveFunctionCollapse {
         left: [202, 186, 18, 23, 86],
         right: [202, 186, 18, 23, 86],
       },
-  
       // Water blocks can still touch each other or transition grass
       202: {
         up: [202, 186, 18, 23, 86],
@@ -63,12 +69,6 @@ export default class WaveFunctionCollapse {
         left: [202, 186, 18, 23, 86],
         right: [202, 186, 18, 23, 86],
       },
-      203: {
-        up: [202, 186, 18, 23, 86],
-        down: [202, 186, 18, 23, 86],
-        left: [202, 186, 18, 23, 86],
-        right: [202, 186, 18, 23, 86],
-      },
       86: {
         up: [202, 186, 18, 23, 86],
         down: [202, 186, 18, 23, 86],
@@ -77,7 +77,6 @@ export default class WaveFunctionCollapse {
       },
     };
   }
-  
 
   /**
    * Find the grid cell with the lowest entropy (fewest remaining tile options),
@@ -181,14 +180,19 @@ export default class WaveFunctionCollapse {
 
     const cell = this.findLowestEntropyCell();
     if (!cell) return null;
-    if (this.grid[cell.y][cell.x].size === 0) return null;
+
+    const cellOptions = this.grid[cell.y][cell.x];
+    if (!cellOptions || cellOptions.size === 0) {
+      console.warn(`Cell at (${cell.x}, ${cell.y}) has no valid options`);
+      return null;
+    }
 
     this.collapseCell(cell.x, cell.y);
     this.propagate(cell.x, cell.y);
     this.steps++;
-    const collapsedTile = [...this.grid[cell.y][cell.x]][0];
 
-    return { x: cell.x, y: cell.y, tile: collapsedTile };
+    const tile = Array.from(this.grid[cell.y][cell.x])[0];
+    return { x: cell.x, y: cell.y, tile };
   }
 
   /**

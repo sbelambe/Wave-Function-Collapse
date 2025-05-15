@@ -124,6 +124,10 @@ class sceneName extends Phaser.Scene {
         callback: () => {
           const result = this.wfc.stepCollapse();
           if (result) {
+            if (typeof result.tile !== "number" || result.tile < 0) {
+              console.warn("Invalid tile index:", result);
+            }
+
             this.mapLayer.putTileAt(result.tile, result.x, result.y);
 
             if (result.tile === 18 && Math.random() < 0.3) {
